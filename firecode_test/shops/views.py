@@ -46,3 +46,10 @@ class ShopView(APIView):
                 pass
         serializer = ShopSerializer(shops, many=True)
         return Response({'shops': serializer.data})
+
+    def post(self, request):
+        shop = request.data.get('shop')
+        serializer = ShopSerializer(data=shop)
+        if serializer.is_valid(raise_exception=True):
+            shop_saved = serializer.save()
+            return Response({'id': shop_saved.pk})

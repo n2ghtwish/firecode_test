@@ -1,3 +1,5 @@
+import datetime
+
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -35,5 +37,12 @@ class ShopView(APIView):
             if 'street' in request.query_params.keys():
                 street = Street.objects.get(pk=int(request.query_params['street']))
                 shops = shops.filter(street=street)
+            if 'open' in request.query_params.keys():
+                ct = datetime.datetime.now().time()
+                if request.query_params['open'] == '0':
+                    shops = shops.exclude(opens__lte=ct, closes__gte=ct)
+                elif request.query_params['open'] == '1':
+                    shops = shops.filter(opens__lte=ct, closes__gte=ct)
+                pass
         serializer = ShopSerializer(shops, many=True)
         return Response({'shops': serializer.data})

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import City, Street, Shop
-from .serializers import CitySerializer, StreetSerializer, ShopSerializer
+from .serializers import CitySerializer, StreetSerializer, ShopSerializer, AddShopSerializer
 
 
 # Create your views here.
@@ -48,8 +48,9 @@ class ShopView(APIView):
         return Response({'shops': serializer.data})
 
     def post(self, request):
+        # shop = JSONParser().parse(request)
         shop = request.data.get('shop')
-        serializer = ShopSerializer(data=shop)
+        serializer = AddShopSerializer(data=shop)
         if serializer.is_valid(raise_exception=True):
             shop_saved = serializer.save()
             return Response({'id': shop_saved.pk})

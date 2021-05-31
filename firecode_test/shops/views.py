@@ -1,6 +1,7 @@
-import datetime
+from datetime import datetime
 
 from django.shortcuts import render
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -38,19 +39,26 @@ class ShopView(APIView):
                 street = Street.objects.get(pk=int(request.query_params['street']))
                 shops = shops.filter(street=street)
             if 'open' in request.query_params.keys():
-                ct = datetime.datetime.now().time()
+                ct = datetime.now().time()
                 if request.query_params['open'] == '0':
                     shops = shops.exclude(opens__lte=ct, closes__gte=ct)
                 elif request.query_params['open'] == '1':
                     shops = shops.filter(opens__lte=ct, closes__gte=ct)
-                pass
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         serializer = ShopSerializer(shops, many=True)
         return Response({'shops': serializer.data})
 
     def post(self, request):
-        # shop = JSONParser().parse(request)
         shop = request.data.get('shop')
         serializer = AddShopSerializer(data=shop)
         if serializer.is_valid(raise_exception=True):
             shop_saved = serializer.save()
             return Response({'id': shop_saved.pk})
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class ErrorView(APIView):
+    def get(self, request, **kwargs):
+        return Response(status=status.HTTP_400_BAD_REQUEST)

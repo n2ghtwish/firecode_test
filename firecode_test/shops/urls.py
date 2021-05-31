@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import CityView, StreetView, ShopView, ErrorView
+from .views import CityView, StreetView, ShopView, ErrorView, PeeWeeCityView
 
 
 app_name = 'cities'
 urlpatterns = [
     path('city/', CityView.as_view()),
+    path('peeweecity/', PeeWeeCityView.as_view()),
     path('city/street/', StreetView.as_view()),
     path('shop/', ShopView.as_view()),
     path('', ErrorView.as_view()),

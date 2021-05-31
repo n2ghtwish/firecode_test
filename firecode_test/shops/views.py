@@ -1,11 +1,12 @@
 from datetime import datetime
+import peewee
 
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import City, Street, Shop
+from .models import City, Street, Shop, PeeWeeCity
 from .serializers import CitySerializer, StreetSerializer, ShopSerializer, AddShopSerializer
 
 
@@ -15,6 +16,14 @@ class CityView(APIView):
         cities = City.objects.all()
         serializer = CitySerializer(cities, many=True)
         return Response({'cities': serializer.data})
+
+
+class PeeWeeCityView(APIView):
+    def get(self, request):
+        cities = PeeWeeCity.select()
+        # cities = City.objects.all()
+        serializer = CitySerializer(cities, many=True)
+        return Response({'peewee_cities': serializer.data})
 
 
 class StreetView(APIView):

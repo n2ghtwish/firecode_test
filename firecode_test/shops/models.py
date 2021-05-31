@@ -1,4 +1,27 @@
 from django.db import models
+from django.conf import settings
+import peewee
+
+
+db = settings.DATABASES['default']
+# database = peewee.PostgresqlDatabase('firecode_test', user='superuser', password='pass')
+database = peewee.PostgresqlDatabase(db['NAME'], user=db['USER'], password=db['PASSWORD'])
+
+
+class BaseModel(peewee.Model):
+    class Meta:
+        database = database
+
+
+class PeeWeeCity(BaseModel):
+    id = peewee.PrimaryKeyField()
+    name = peewee.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'shops_city'
+
+    def __str__(self):
+        return self.name
 
 
 # Create your models here.

@@ -2,7 +2,7 @@ from abc import ABC
 
 from rest_framework import serializers
 
-from .models import Shop
+from .models import Shop, PeeWeeShop
 
 
 class CitySerializer(serializers.Serializer):

@@ -9,8 +9,13 @@ database = peewee.PostgresqlDatabase(db['NAME'], user=db['USER'], password=db['P
 
 
 class BaseModel(peewee.Model):
+    name = peewee.CharField()
+
     class Meta:
         database = database
+
+    def __str__(self):
+        return self.name
 
 
 class PeeWeeCity(BaseModel):
@@ -20,8 +25,27 @@ class PeeWeeCity(BaseModel):
     class Meta:
         db_table = 'shops_city'
 
-    def __str__(self):
-        return self.name
+
+class PeeWeeStreet(BaseModel):
+    id = peewee.PrimaryKeyField()
+    name = peewee.CharField(max_length=255)
+    city = peewee.ForeignKeyField(PeeWeeCity, backref='streets', on_delete='CASCADE')
+
+    class Meta:
+        db_table = 'shops_street'
+
+
+class PeeWeeShop(BaseModel):
+    id = peewee.PrimaryKeyField()
+    name = peewee.CharField(max_length=255)
+    city = peewee.ForeignKeyField(PeeWeeCity, backref='shops', on_delete='CASCADE')
+    street = peewee.ForeignKeyField(PeeWeeStreet, backref='shops', on_delete='CASCADE')
+    building = peewee.CharField(max_length=10)
+    opens = peewee.TimeField()
+    closes = peewee.TimeField()
+
+    class Meta:
+        db_table = 'shops_shop'
 
 
 # Create your models here.

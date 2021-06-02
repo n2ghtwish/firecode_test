@@ -17,7 +17,7 @@ class BaseModel(peewee.Model):
         return self.name
 
 
-class PeeWeeCity(BaseModel):
+class PeeweeCity(BaseModel):
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=255)
 
@@ -25,20 +25,20 @@ class PeeWeeCity(BaseModel):
         db_table = 'shops_city'
 
 
-class PeeWeeStreet(BaseModel):
+class PeeweeStreet(BaseModel):
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=255)
-    city = peewee.ForeignKeyField(PeeWeeCity, backref='streets', on_delete='CASCADE')
+    city = peewee.ForeignKeyField(PeeweeCity, backref='streets', on_delete='CASCADE')
 
     class Meta:
         db_table = 'shops_street'
 
 
-class PeeWeeShop(BaseModel):
+class PeeweeShop(BaseModel):
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=255)
-    city = peewee.ForeignKeyField(PeeWeeCity, backref='shops', on_delete='CASCADE')
-    street = peewee.ForeignKeyField(PeeWeeStreet, backref='shops', on_delete='CASCADE')
+    city = peewee.ForeignKeyField(PeeweeCity, backref='shops', on_delete='CASCADE')
+    street = peewee.ForeignKeyField(PeeweeStreet, backref='shops', on_delete='CASCADE')
     building = peewee.CharField(max_length=10)
     opens = peewee.TimeField()
     closes = peewee.TimeField()

@@ -13,4 +13,3 @@ urlpatterns = [
     path('<slug:slug>/', ErrorView.as_view()),
     path('', ErrorView.as_view()),
 ]
-

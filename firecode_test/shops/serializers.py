@@ -1,8 +1,6 @@
 import peewee_validates as pv
-
 from rest_framework import serializers
-
-from .models import Shop, PeeWeeShop
+from .models import Shop
 
 
 class CitySerializer(serializers.Serializer):
@@ -31,13 +29,14 @@ class AddShopSerializer(serializers.Serializer):
         return Shop.objects.create(**validated_data)
 
 
-class PeeWeeShopValidator(pv.ModelValidator):
-    name = pv.StringField(max_length=255)
-    street_id = pv.IntegerField()
-    city_id = pv.IntegerField()
-    building = pv.StringField(max_length=10)
-    opens = pv.TimeField()
-    closes = pv.TimeField()
-
-    def create(self, validated_data):
-        return PeeWeeShop.create(**validated_data)
+class PeeWeeShopValidator(pv.Validator):
+    name = pv.StringField(validators=[pv.validate_required(),
+                                      pv.validate_not_empty(),
+                                      pv.validate_length(low=1, high=255)])
+    street = pv.IntegerField(validators=[pv.validate_required(), pv.validate_not_empty()])
+    city = pv.IntegerField(validators=[pv.validate_required(), pv.validate_not_empty()])
+    building = pv.StringField(validators=[pv.validate_required(),
+                                          pv.validate_not_empty(),
+                                          pv.validate_length(low=1, high=10)])
+    opens = pv.TimeField(validators=[pv.validate_required(), pv.validate_not_empty()])
+    closes = pv.TimeField(validators=[pv.validate_required(), pv.validate_not_empty()])

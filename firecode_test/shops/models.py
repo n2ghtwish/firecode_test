@@ -4,7 +4,6 @@ import peewee
 
 
 db = settings.DATABASES['default']
-# database = peewee.PostgresqlDatabase('firecode_test', user='superuser', password='pass')
 database = peewee.PostgresqlDatabase(db['NAME'], user=db['USER'], password=db['PASSWORD'])
 
 

@@ -1,10 +1,5 @@
 import json
 from datetime import datetime
-from peewee_validates import ModelValidator
-from playhouse.shortcuts import model_to_dict
-import peewee
-
-from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,9 +13,7 @@ class CityView(APIView):
     def get(self, request):
         cities = City.objects.all()
         serializer = CitySerializer(cities, many=True)
-        # return Response({'cities': serializer.data})
-        resp = Response({'cities': serializer.data})
-        return resp
+        return Response({'cities': serializer.data})
 
 
 class PeeWeeCityView(APIView):
@@ -110,22 +103,26 @@ class PeeWeeShopView(APIView):
                                    indent=4), content_type='application/json')
 
     def post(self, request):
-        shop = request.data.get('shop')
-        validator = ModelValidator(PeeWeeShop)
+        shop = request.data
+        validator = PeeWeeShopValidator()
         validator.validate(shop)
         if validator.errors == {}:
-            new_shop = PeeWeeShop.create(shop)
+            new_shop = PeeWeeShop.create(name=validator.data['name'],
+                                         city=validator.data['city'],
+                                         street=validator.data['street'],
+                                         building=validator.data['building'],
+                                         opens=validator.data['opens'],
+                                         closes=validator.data['closes'],
+                                         )
             return Response({'id': new_shop.id})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        # validator = PeeWeeShopValidator()
-        # if serializer.is_valid(raise_exception=True):
-        #     shop_saved = serializer.save()
-        #     return Response({'id': shop_saved.pk})
-        # else:
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(json.dumps({'errors': validator.errors}, ensure_ascii=False, indent=4),
+                            content_type='application/json', status=status.HTTP_400_BAD_REQUEST)
 
 
 class ErrorView(APIView):
     def get(self, request, **kwargs):
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, **kwargs):
         return Response(status=status.HTTP_400_BAD_REQUEST)

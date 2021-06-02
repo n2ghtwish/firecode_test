@@ -79,8 +79,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'firecode_test',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'USER': 'superuser',
+        'PASSWORD': 'pass',
         'HOST': 'localhost',
         'PORT': '5432',
     }

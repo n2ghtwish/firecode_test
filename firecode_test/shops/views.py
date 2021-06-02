@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from peewee_validates import ModelValidator
 from playhouse.shortcuts import model_to_dict
 import peewee
 
@@ -9,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import City, Street, Shop, PeeWeeCity, PeeWeeStreet, PeeWeeShop
-from .serializers import CitySerializer, StreetSerializer, ShopSerializer, AddShopSerializer
+from .serializers import CitySerializer, StreetSerializer, ShopSerializer, AddShopSerializer, PeeWeeShopValidator
 
 
 # Create your views here.
@@ -84,42 +85,45 @@ class ShopView(APIView):
 
 class PeeWeeShopView(APIView):
     def get(self, request):
-        shops = PeeWeeShop.select(PeeWeeShop.name, PeeWeeCity.name, PeeWeeStreet.name).join(PeeWeeCity, attr='city').join(PeeWeeStreet, attr='street')
-        # shops = PeeWeeShop.select().join(PeeWeeCity, attr='city').join(PeeWeeStreet, attr='street')
-        # shops = PeeWeeShop.select(PeeWeeShop.name, PeeWeeCity.name, PeeWeeStreet.name).join(PeeWeeCity, PeeWeeStreet)
+        shops = PeeWeeShop.select()\
+            .join(PeeWeeCity, on=(PeeWeeShop.city == PeeWeeCity.id))\
+            .join(PeeWeeStreet, on=(PeeWeeShop.street == PeeWeeStreet.id))
         if len(request.query_params) > 0:
             if 'city' in request.query_params.keys():
                 city_id = int(request.query_params['city'])
-                shops = shops.where(PeeWeeShop.city == city_id)
+                shops = shops.select().where(PeeWeeShop.city == city_id)
             if 'street' in request.query_params.keys():
                 street_id = int(request.query_params['street'])
-                shops = shops.where(PeeWeeShop.street == street_id)
+                shops = shops.select().where(PeeWeeShop.street == street_id)
             if 'open' in request.query_params.keys():
                 ct = datetime.now().time()
                 if request.query_params['open'] == '0':
-                    pass
-                    shops = shops.where((PeeWeeShop.opens > ct) | (PeeWeeShop.closes < ct))
+                    shops = shops.select().where((PeeWeeShop.opens > ct) | (PeeWeeShop.closes < ct))
                 elif request.query_params['open'] == '1':
-                    shops = shops.where(PeeWeeShop.opens < ct, PeeWeeShop.closes > ct)
-            # else:
-            #     return Response(status=status.HTTP_400_BAD_REQUEST)
-        # serializer = ShopSerializer(shops, many=True)
-        # return Response({'shops': serializer.data})
-        # shops = list(shops.select(PeeWeeShop.name, PeeWeeShop.city.name, PeeWeeShop.street.name).dicts())
-        for row in shops:
-            print(row.name, row.city.name, row.street.name)
-        # shops = list(shops.dicts())
+                    shops = shops.select().where(PeeWeeShop.opens < ct, PeeWeeShop.closes > ct)
+                else:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+        shops = list(shops.select(PeeWeeShop.name,
+                                  PeeWeeCity.name.alias('city'),
+                                  PeeWeeStreet.name.alias('street')).dicts())
         return Response(json.dumps({'peewee_cities': shops}, ensure_ascii=False,
                                    indent=4), content_type='application/json')
 
     def post(self, request):
         shop = request.data.get('shop')
-        serializer = AddShopSerializer(data=shop)
-        if serializer.is_valid(raise_exception=True):
-            shop_saved = serializer.save()
-            return Response({'id': shop_saved.pk})
+        validator = ModelValidator(PeeWeeShop)
+        validator.validate(shop)
+        if validator.errors == {}:
+            new_shop = PeeWeeShop.create(shop)
+            return Response({'id': new_shop.id})
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        # validator = PeeWeeShopValidator()
+        # if serializer.is_valid(raise_exception=True):
+        #     shop_saved = serializer.save()
+        #     return Response({'id': shop_saved.pk})
+        # else:
+        #     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class ErrorView(APIView):

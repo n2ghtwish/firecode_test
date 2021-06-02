@@ -1,4 +1,4 @@
-from abc import ABC
+import peewee_validates as pv
 
 from rest_framework import serializers
 
@@ -29,3 +29,15 @@ class AddShopSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return Shop.objects.create(**validated_data)
+
+
+class PeeWeeShopValidator(pv.ModelValidator):
+    name = pv.StringField(max_length=255)
+    street_id = pv.IntegerField()
+    city_id = pv.IntegerField()
+    building = pv.StringField(max_length=10)
+    opens = pv.TimeField()
+    closes = pv.TimeField()
+
+    def create(self, validated_data):
+        return PeeWeeShop.create(**validated_data)

@@ -24,14 +24,14 @@ Cервис с использованием django, django-rest-framework, peewe
 
 **Выполнить окончательные действия**
 
-    python manage.py makemigrations
-    python manage.py migrate
-    python manage.py loaddata whole.json
+    python3 manage.py makemigrations
+    python3 manage.py migrate
+    python3 manage.py loaddata whole.json
     python3 manage.py createsuperuser
 
 ####Запуск сервера
 
-    python manage.py runserver
+    python3 manage.py runserver
 
 ### Порядок работы
 
